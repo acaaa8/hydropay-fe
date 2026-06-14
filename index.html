@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HydroPay</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- SCREEN 1: PILIH VOLUME -->
+  <div id="screen-1" class="screen active">
+    <div class="screen-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 4C16 4 6 14.5 6 20a10 10 0 0020 0C26 14.5 16 4 16 4z" fill="url(#drop)"/>
+            <defs>
+              <linearGradient id="drop" x1="16" y1="4" x2="16" y2="30" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#7DD3FC"/>
+                <stop offset="100%" stop-color="#0369A1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="brand-name">HydroPay</span>
+      </div>
+
+      <div class="hero">
+        <h1 class="hero-title">Pilih volume air</h1>
+        <p class="hero-sub">Bayar sesuai kebutuhan · Rp1/ml</p>
+      </div>
+
+      <div class="volume-cards">
+        <button class="vol-card" data-volume="300" data-price="300" onclick="selectVolume(this)">
+          <div class="vol-wave"></div>
+          <span class="vol-ml">300</span>
+          <span class="vol-unit">ml</span>
+          <span class="vol-price">Rp 300</span>
+          <span class="vol-tag">Minum</span>
+        </button>
+        <button class="vol-card featured" data-volume="600" data-price="600" onclick="selectVolume(this)">
+          <div class="vol-wave"></div>
+          <div class="badge-popular">Populer</div>
+          <span class="vol-ml">600</span>
+          <span class="vol-unit">ml</span>
+          <span class="vol-price">Rp 600</span>
+          <span class="vol-tag">Botol</span>
+        </button>
+        <button class="vol-card" data-volume="1000" data-price="1000" onclick="selectVolume(this)">
+          <div class="vol-wave"></div>
+          <span class="vol-ml">1000</span>
+          <span class="vol-unit">ml</span>
+          <span class="vol-price">Rp 1.000</span>
+          <span class="vol-tag">Tumbler</span>
+        </button>
+      </div>
+
+      <p class="footer-note">Wadah isi ulang · Kurangi plastik</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: PEMBAYARAN -->
+  <div id="screen-2" class="screen">
+    <div class="screen-inner">
+      <button class="back-btn" onclick="goBack()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12 5L7 10L12 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Kembali
+      </button>
+
+      <div class="pay-header">
+        <p class="pay-label">Total pembayaran</p>
+        <p class="pay-amount" id="pay-amount">Rp 600</p>
+        <p class="pay-volume" id="pay-volume">600 ml air</p>
+      </div>
+
+      <div class="qr-wrapper">
+        <div class="qr-box">
+          <div class="qr-mock" id="qr-mock">
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+              <rect x="10" y="10" width="44" height="44" rx="4" fill="none" stroke="#0C4A6E" stroke-width="4"/>
+              <rect x="18" y="18" width="28" height="28" rx="2" fill="#0C4A6E"/>
+              <rect x="106" y="10" width="44" height="44" rx="4" fill="none" stroke="#0C4A6E" stroke-width="4"/>
+              <rect x="114" y="18" width="28" height="28" rx="2" fill="#0C4A6E"/>
+              <rect x="10" y="106" width="44" height="44" rx="4" fill="none" stroke="#0C4A6E" stroke-width="4"/>
+              <rect x="18" y="114" width="28" height="28" rx="2" fill="#0C4A6E"/>
+              <rect x="64" y="10" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="76" y="10" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="88" y="10" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="22" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="88" y="22" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="34" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="76" y="34" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="10" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="22" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="34" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="10" y="76" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="34" y="76" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="10" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="22" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="80" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="96" y="72" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="112" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="128" y="72" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="144" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="72" y="80" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="88" y="72" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="104" y="80" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="120" y="64" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="136" y="80" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="80" y="80" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="96" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="128" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="144" y="80" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="72" y="96" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="104" y="96" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="120" y="88" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="112" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="80" y="112" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="96" y="104" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="112" y="112" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="128" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="88" y="128" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="104" y="120" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="128" y="128" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="144" y="120" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="64" y="144" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="80" y="144" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="120" y="144" width="8" height="8" fill="#0C4A6E"/>
+              <rect x="136" y="136" width="8" height="8" fill="#0C4A6E"/>
+            </svg>
+          </div>
+          <p class="qr-label">Scan dengan GoPay, OVO, Dana, ShopeePay,<br/>atau m-banking manapun</p>
+        </div>
+      </div>
+
+      <div class="countdown-wrap">
+        <svg class="countdown-ring" width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="#E0F2FE" stroke-width="4"/>
+          <circle id="countdown-circle" cx="32" cy="32" r="28" fill="none"
+            stroke="#0EA5E9" stroke-width="4"
+            stroke-dasharray="176" stroke-dashoffset="0"
+            stroke-linecap="round"
+            transform="rotate(-90 32 32)"/>
+        </svg>
+        <div class="countdown-text">
+          <span id="countdown-num">120</span>
+          <span class="countdown-s">detik</span>
+        </div>
+      </div>
+
+      <p class="pay-hint">Menunggu konfirmasi pembayaran…</p>
+      <button class="sim-btn" onclick="simulatePayment()">⚡ Simulasi Bayar</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: PROSES & KONFIRMASI -->
+  <div id="screen-3" class="screen">
+    <div class="screen-inner">
+
+      <div id="dispensing-view">
+        <div class="disp-header">
+          <div class="disp-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <path d="M18 4C18 4 8 15 8 21a10 10 0 0020 0C28 15 18 4 18 4z" fill="url(#drop2)"/>
+              <defs>
+                <linearGradient id="drop2" x1="18" y1="4" x2="18" y2="31" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#7DD3FC"/>
+                  <stop offset="100%" stop-color="#0284C7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <p class="disp-label">Mengisi air…</p>
+          <p class="disp-target" id="disp-target">0 / 600 ml</p>
+        </div>
+
+        <div class="tank-wrap">
+          <div class="tank">
+            <div class="tank-fill" id="tank-fill">
+              <div class="tank-wave"></div>
+            </div>
+            <div class="tank-percent" id="tank-percent">0%</div>
+          </div>
+        </div>
+
+        <div class="disp-meta">
+          <div class="meta-chip">
+            <span class="meta-key">Volume target</span>
+            <span class="meta-val" id="meta-vol">600 ml</span>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-key">Harga</span>
+            <span class="meta-val" id="meta-price">Rp 600</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="done-view" class="hidden">
+        <div class="done-circle">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <circle cx="36" cy="36" r="36" fill="#0EA5E9"/>
+            <path d="M21 36L31 46L51 26" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="done-title">Selesai!</h2>
+        <p class="done-sub">Air sudah terisi</p>
+        <div class="receipt">
+          <div class="receipt-row">
+            <span>Volume</span>
+            <span id="rec-vol">600 ml</span>
+          </div>
+          <div class="receipt-row">
+            <span>Harga</span>
+            <span id="rec-price">Rp 600</span>
+          </div>
+          <div class="receipt-row">
+            <span>Status</span>
+            <span class="rec-paid">Lunas ✓</span>
+          </div>
+        </div>
+        <button class="restart-btn" onclick="restart()">Transaksi Baru</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
