@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://localhost:3000';
+
 const state = {
   volume: 0,
   price: 0,
@@ -14,30 +16,54 @@ function showScreen(id) {
 
 function selectVolume(btn) {
   state.volume = parseInt(btn.dataset.volume);
-  state.price  = parseInt(btn.dataset.price);
+  state.price = parseInt(btn.dataset.price);
 
   document.getElementById('pay-amount').textContent = 'Rp ' + state.price.toLocaleString('id-ID');
   document.getElementById('pay-volume').textContent = state.volume + ' ml air';
-  document.getElementById('meta-vol').textContent   = state.volume + ' ml';
+  document.getElementById('meta-vol').textContent = state.volume + ' ml';
   document.getElementById('meta-price').textContent = 'Rp ' + state.price.toLocaleString('id-ID');
   document.getElementById('disp-target').textContent = '0 / ' + state.volume + ' ml';
-  document.getElementById('rec-vol').textContent    = state.volume + ' ml';
-  document.getElementById('rec-price').textContent  = 'Rp ' + state.price.toLocaleString('id-ID');
+  document.getElementById('rec-vol').textContent = state.volume + ' ml';
+  document.getElementById('rec-price').textContent = 'Rp ' + state.price.toLocaleString('id-ID');
 
   showScreen('screen-2');
   startCountdown();
 
-  // -- MIDTRANS: uncomment saat backend siap --
-  // fetch('/api/payment/create', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ volume: state.volume, price: state.price })
-  // })
-  // .then(r => r.json())
-  // .then(data => {
-  //   // render QR dari data.qr_string pakai library qrcode.js
-  //   startPolling(data.transaction_id);
-  // });
+  // Tampilkan loading, sembunyikan gambar QR sebelumnya (jika ada transaksi baru)
+  document.getElementById('qr-loading').style.display = 'flex';
+  document.getElementById('qr-image').style.display = 'none';
+  document.getElementById('qr-image').src = '';
+
+  // -- MIDTRANS: Fetch ke backend --
+  fetch(`${API_BASE_URL}/api/payment/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ volume: state.volume, price: state.price })
+  })
+    .then(r => r.json())
+    .then(data => {
+      // Sembunyikan loading animasi dan tampilkan gambar QR
+      document.getElementById('qr-loading').style.display = 'none';
+      const qrImg = document.getElementById('qr-image');
+      qrImg.style.display = 'block';
+
+      // Gunakan qr_url langsung dari Midtrans jika tersedia, jika tidak fallback ke generate qr_string
+      if (data.qr_url) {
+        qrImg.src = data.qr_url;
+      } else if (data.qr_string) {
+        QRCode.toDataURL(data.qr_string, { width: 160, margin: 1 }, function (error, url) {
+          if (error) console.error('Gagal render QR:', error);
+          else qrImg.src = url;
+        });
+      }
+
+      startPolling(data.transaction_id);
+    })
+    .catch(err => {
+      console.error('Error create payment:', err);
+      document.querySelector('#qr-loading p').textContent = 'Gagal memuat QR';
+      document.querySelector('#qr-loading .spinner').style.display = 'none';
+    });
 }
 
 function goBack() {
@@ -71,61 +97,58 @@ function updateCountdownUI(sec) {
 // Hapus fungsi ini saat Midtrans sudah aktif
 function simulatePayment() {
   clearInterval(state.countdownTimer);
-  onPaymentSuccess();
+  onPaymentSuccess('sim-tx-' + Date.now());
 }
 
-function onPaymentSuccess() {
+function onPaymentSuccess(txId) {
   showScreen('screen-3');
   document.getElementById('dispensing-view').classList.remove('hidden');
   document.getElementById('done-view').classList.add('hidden');
   document.getElementById('tank-fill').style.height = '0%';
   document.getElementById('tank-percent').textContent = '0%';
   document.getElementById('disp-target').textContent = '0 / ' + state.volume + ' ml';
-  startDispensing();
+  startDispensing(txId);
 }
 
 // -- MIDTRANS polling: uncomment saat backend siap --
-// function startPolling(txId) {
-//   const poll = setInterval(async () => {
-//     try {
-//       const r = await fetch('/api/payment/status/' + txId);
-//       const d = await r.json();
-//       if (d.status === 'PAID') {
-//         clearInterval(poll);
-//         clearInterval(state.countdownTimer);
-//         onPaymentSuccess();
-//       }
-//     } catch(e) { console.error(e); }
-//   }, 2000);
-// }
+function startPolling(txId) {
+  const poll = setInterval(async () => {
+    try {
+      const r = await fetch(`${API_BASE_URL}/api/payment/status/` + txId);
+      const d = await r.json();
+      if (d.status === 'PAID') {
+        clearInterval(poll);
+        clearInterval(state.countdownTimer);
+        onPaymentSuccess(txId);
+      }
+    } catch (e) { console.error(e); }
+  }, 2000);
+}
 
-function startDispensing() {
+function startDispensing(txId) {
   clearInterval(state.dispensingTimer);
   state.filled = 0;
 
-  // Simulasi pengisian — ganti dengan polling ESP32 saat hardware terhubung
-  state.dispensingTimer = setInterval(() => {
-    state.filled = Math.min(state.filled + 5, state.volume);
-    const pct = Math.round((state.filled / state.volume) * 100);
-    document.getElementById('tank-fill').style.height = pct + '%';
-    document.getElementById('tank-percent').textContent = pct + '%';
-    document.getElementById('disp-target').textContent = state.filled + ' / ' + state.volume + ' ml';
-    if (state.filled >= state.volume) {
-      clearInterval(state.dispensingTimer);
-      setTimeout(showDone, 500);
+  // -- ESP32 real polling: akan berjalan otomatis memantau hardware --
+  state.dispensingTimer = setInterval(async () => {
+    try {
+      const r = await fetch(`${API_BASE_URL}/api/dispense/progress/${txId}`);
+      const d = await r.json();
+      
+      // Update UI sesuai data dari ESP32
+      const pct = Math.round((d.filled / state.volume) * 100);
+      document.getElementById('tank-fill').style.height = pct + '%';
+      document.getElementById('tank-percent').textContent = pct + '%';
+      document.getElementById('disp-target').textContent = d.filled + ' / ' + state.volume + ' ml';
+      
+      if (d.status === 'DONE' || d.filled >= state.volume) { 
+        clearInterval(state.dispensingTimer); 
+        setTimeout(showDone, 500); 
+      }
+    } catch (e) {
+      console.error('Error memantau progress ESP32:', e);
     }
-  }, 100);
-
-  // -- ESP32 real polling: uncomment saat hardware terhubung --
-  // state.dispensingTimer = setInterval(async () => {
-  //   const r = await fetch('/api/dispense/progress');
-  //   const d = await r.json();
-  //   const pct = Math.round((d.filled / state.volume) * 100);
-  //   document.getElementById('tank-fill').style.height = pct + '%';
-  //   document.getElementById('tank-percent').textContent = pct + '%';
-  //   document.getElementById('disp-target').textContent = d.filled + ' / ' + state.volume + ' ml';
-  //   if (d.status === 'DONE') { clearInterval(state.dispensingTimer); setTimeout(showDone, 500); }
-  // }, 500);
+  }, 500);
 }
 
 function showDone() {
